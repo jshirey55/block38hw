@@ -47,12 +47,12 @@ export async function getPlaylistByTrackIdAndUserId(trackId, userId) {
   return playlists
 }
 
-export async function getPlaylistByUserId(id) {
+export async function getPlaylistByUserId(userId) {
   const SQL =`
   SELECT *
   FROM playlists
   WHERE user_id = $1
   `;
-  const { rows: playlists } = await db.query(SQL, [id])
+  const { rows: playlists } = await db.query(SQL, [userId])
   return playlists
 }

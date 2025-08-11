@@ -11,8 +11,10 @@ import {
 import { createPlaylistTrack } from "#db/queries/playlists_tracks";
 import { getTracksByPlaylistId } from "#db/queries/tracks";
 import requireUser from "#middleware/requireUser"
+import getUserFromToken from "#middleware/getUserFromToken";
 
 router.use(requireUser)
+router.use(getUserFromToken)
 
 router
   .route("/")
@@ -21,13 +23,11 @@ router
     res.send(playlist)
   })
   .post(async (req, res) => {
-    if (!req.body) return res.status(400).send("Request body is required.");
-
     const { name, description } = req.body;
     if (!name || !description)
       return res.status(400).send("Request body requires: name, description");
 
-    const playlist = await createPlaylist(name, description);
+    const playlist = await createPlaylist(name, description, req.user.id);
     res.status(201).send(playlist);
   });
 
@@ -49,15 +49,23 @@ router.route("/:id").get((req, res) => {
 router
   .route("/:id/tracks")
   .get(async (req, res) => {
+    
+     if (req.user.id !== req.playlist.user_id) {
+      return res.status(403).send("You are not authorized to modify this playlist");
+    }
     const tracks = await getTracksByPlaylistId(req.playlist.id);
     res.send(tracks);
   })
   .post(async (req, res) => {
-    if (!req.body) return res.status(400).send("Request body is required.");
+    if (req.user.id !== req.playlist.user_id) {
+      return res.status(403).send("You are not authorized to modify this playlist");
+    }
+
+    if (!req.body) return res.status(400).send("Request body is required.")
 
     const { trackId } = req.body;
-    if (!trackId) return res.status(400).send("Request body requires: trackId");
+    if (!trackId) return res.status(400).send("Request body requires: trackId")
 
-    const playlistTrack = await createPlaylistTrack(req.playlist.id, trackId);
-    res.status(201).send(playlistTrack);
+    const playlistTrack = await createPlaylistTrack(req.playlist.id, trackId)
+    res.status(201).send(playlistTrack)
   });

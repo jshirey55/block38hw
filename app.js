@@ -7,6 +7,9 @@ import morgan from "morgan";
 import usersRouter from "#api/users"
 import tracksRouter from "#api/tracks";
 import playlistsRouter from "#api/playlists";
+import getUserFromToken from "#middleware/getUserFromToken";
+
+app.use(getUserFromToken)
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

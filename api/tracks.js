@@ -23,7 +23,7 @@ router.route("/:id").get(async (req, res) => {
   const track = req.track
 
   if(req.user) {
-    const playlists = await getPlaylistByTrackIdAndUserId(restraunt.id, req.user.id)
+    const playlists = await getPlaylistByTrackIdAndUserId(track.id, req.user.id)
     track.playlists = playlists
   }
   res.send(playlists)
@@ -31,6 +31,7 @@ router.route("/:id").get(async (req, res) => {
 
 router
   .route("/:id/playlists")
+  
   .post(requireUser, requireBody(["name", "description"]), async (req, res) => {
     const { name, description } = req.body
     const playlist = await createPlaylist(
@@ -41,3 +42,4 @@ router
     )
     res.status(201).send(playlist)
   })
+  .get(requireUser)
