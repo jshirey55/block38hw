@@ -37,11 +37,12 @@ export async function getPlaylistById(id) {
 
 export async function getPlaylistByTrackIdAndUserId(trackId, userId) {
   const SQL =`
-  SELECT *
+  SELECT playlists.id, playlists.name, playlists.description, playlists.user_id
   FROM playlists
+  JOIN playlists_tracks ON playlists_tracks.playlist_id = playlists.id
   WHERE 
-    track_id = $1
-    AND user_id = $2
+    playlists_tracks.track_id = $1
+    AND playlists.user_id = $2
   `;
   const { rows: playlists } = await db.query(SQL, [trackId, userId])
   return playlists

@@ -35,11 +35,19 @@ router
   .post(requireUser, requireBody(["name", "description"]), async (req, res) => {
     const { name, description } = req.body
     const playlist = await createPlaylist(
-      req.playlist.id,
       req.user.id,
       name,
       description,
     )
     res.status(201).send(playlist)
   })
-  .get(requireUser)
+
+  .get(requireUser, async (req, res) => {
+    const track = await getTrackById(req.params.id)
+    if (!track) return res.status(404).send("Track not found")
+
+    const playlists = await getPlaylistByTrackIdAndUserId(req.params.id, req.user.id)
+    res.status(200).send(playlists)
+  })
+
+  
